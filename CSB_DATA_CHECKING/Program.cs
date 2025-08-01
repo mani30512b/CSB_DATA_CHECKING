@@ -1,15 +1,24 @@
+﻿using CSB_DATA_CHECKING.Services;
+using OfficeOpenXml; // ✅ Required for setting EPPlus license
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ✅ Set EPPlus license context (required to use ExcelPackage)
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
+// Add services to the container.
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+// ✅ Register your service implementation
+builder.Services.AddScoped<ICsbValidatorService, CsbValidatorService>();
+
+// Swagger support
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Enable Swagger in Development mode
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
