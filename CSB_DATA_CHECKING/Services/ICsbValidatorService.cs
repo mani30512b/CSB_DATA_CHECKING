@@ -1,9 +1,25 @@
-﻿using CSB_DATA_CHECKING.Models;
+﻿//using CSB_DATA_CHECKING.Models;
+
+//namespace CSB_DATA_CHECKING.Services
+//{
+//    public interface ICsbValidatorService
+//    {
+//        Task<CsbValidationResults> ValidateCsbFileAsync(IFormFile file);
+//    }
+//}
+
+
+
+
+
+
+using CSB_DATA_CHECKING.Models;
 
 namespace CSB_DATA_CHECKING.Services
 {
     public interface ICsbValidatorService
     {
         Task<CsbValidationResults> ValidateCsbFileAsync(IFormFile file);
+        //Task<CsbValidationResults> ValidateFileAsync(Stream fileStream); 
     }
 }

@@ -1,34 +1,50 @@
 ﻿using CSB_DATA_CHECKING.Services;
-using OfficeOpenXml; // ✅ Required for setting EPPlus license
+using OfficeOpenXml;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ✅ Set EPPlus license context (required to use ExcelPackage)
+// ✅ Set EPPlus License (required)
 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
-// Add services to the container.
+// ✅ Register services
 builder.Services.AddControllers();
-
-// ✅ Register your service implementation
 builder.Services.AddScoped<ICsbValidatorService, CsbValidatorService>();
-
-// Swagger support
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// ✅ Define CORS policy
+var MyAllowSpecificOrigins = "MyAllowSpecificOrigins"; // ⚠️ Must match below exactly!
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5173") // React dev server origin
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+
 var app = builder.Build();
 
-// Enable Swagger in Development mode
+// ✅ Enable middleware
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseStaticFiles();
 
+// ✅ CORS middleware MUST come before controllers
+app.UseCors(MyAllowSpecificOrigins);
+
+app.UseHttpsRedirection();
 app.UseAuthorization();
 
+// ✅ Map controllers
 app.MapControllers();
 
+// ✅ Start app
 app.Run();

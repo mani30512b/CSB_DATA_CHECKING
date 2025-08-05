@@ -12,11 +12,10 @@ namespace CSB_DATA_CHECKING.Services
         public CsbValidatorService()
         {
             _fileNameRule = new Rule1_FileNameRule();
-
             _rules = new List<ICsbRule>
             {
                 _fileNameRule,
-                new Rule2_ColumnDataType()
+                new Rule2_ColumnDataTypes()
             };
         }
 
@@ -25,7 +24,7 @@ namespace CSB_DATA_CHECKING.Services
             var result = new CsbValidationResults
             {
                 FileName = Path.GetFileName(file.FileName),
-                Errors = new List<string>(),
+                CellErrors = new List<CsbCellError>(),
                 PassedRules = new List<string>(),
                 FailedRules = new List<string>(),
                 ErrorRows = new List<CsbRow>()
@@ -35,7 +34,12 @@ namespace CSB_DATA_CHECKING.Services
 
             if (headers == null || headers.Count == 0)
             {
-                result.Errors.Add("The uploaded file is empty or invalid.");
+                result.CellErrors.Add(new CsbCellError
+                {
+                    RowNumber = 0,
+                    ColumnName = "Header",
+                    Message = "The uploaded file is empty or invalid."
+                });
                 result.Success = false;
                 result.Message = "Validation failed.";
                 return Task.FromResult(result);
@@ -69,7 +73,6 @@ namespace CSB_DATA_CHECKING.Services
                 }
             }
 
-            // Apply all rules to each row
             foreach (var rule in _rules)
             {
                 bool ruleFailed = false;
@@ -82,11 +85,13 @@ namespace CSB_DATA_CHECKING.Services
                         Columns = dataLines[i]
                     };
 
-                    int prevErrorCount = result.Errors.Count;
+                    int prevErrorCount = result.CellErrors.Count;
 
                     rule.Validate(headers, row, row.RowNumber, result);
 
-                    if (result.Errors.Count > prevErrorCount)
+                    int newErrorCount = result.CellErrors.Count;
+
+                    if (newErrorCount > prevErrorCount)
                     {
                         ruleFailed = true;
 
@@ -103,7 +108,7 @@ namespace CSB_DATA_CHECKING.Services
                     result.PassedRules.Add(rule.RuleName);
             }
 
-            result.Success = result.Errors.Count == 0;
+            result.Success = result.CellErrors.Count == 0;
             result.Message = result.Success ? "Validation passed." : "Validation failed.";
 
             return Task.FromResult(result);
