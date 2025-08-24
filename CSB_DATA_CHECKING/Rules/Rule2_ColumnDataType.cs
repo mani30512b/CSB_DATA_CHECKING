@@ -1,5 +1,4 @@
-﻿using CSB_DATA_CHECKING.Helper.ExceptionLogHelper; //  Added for logger
-using CSB_DATA_CHECKING.Helpers;
+﻿using CSB_DATA_CHECKING.Helpers;
 using CSB_DATA_CHECKING.Models;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -8,6 +7,7 @@ namespace CSB_DATA_CHECKING.Rules
 {
     public class Rule2_ColumnDataTypes : ICsbRule
     {
+        //private readonly ExceptionLogger _logger = new(); // Added logger instance
         public string RuleName => "Rule2: Column Data Types";
 
         //public void Validate(List<string> headers, CsbRow row, int rowIndex, CsbValidationResults result)
@@ -123,16 +123,19 @@ namespace CSB_DATA_CHECKING.Rules
                 if (i >= row.Values.Count || string.IsNullOrWhiteSpace(row.Values[i]?.Trim()))
                     continue;
 
-                string cellValue = row.Values[i]?.Trim() ?? string.Empty;
+
+                string? rawValue = row.Values[i];
+                string cellValue = rawValue?.Trim() ?? string.Empty;
+                //string cellValue = row.Values[i]?.Trim() ?? string.Empty;
 
 
                 // Skip placeholder values
-                if (cellValue.Equals("NA", StringComparison.OrdinalIgnoreCase) ||
-                    cellValue.Equals("--") ||
-                    cellValue.Equals("null", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
+                //if (cellValue.Equals("NA", StringComparison.OrdinalIgnoreCase) ||
+                //    cellValue.Equals("--") ||
+                //    cellValue.Equals("null", StringComparison.OrdinalIgnoreCase))
+                //{
+                //    continue;
+                //}
 
                 bool isValid = true;
                 string errorMessage = string.Empty;
@@ -176,7 +179,11 @@ namespace CSB_DATA_CHECKING.Rules
 
                     if (!isDateValid)
                     {
-                        errorMessage = $"Invalid date format. Supported formats: {string.Join(", ", acceptedFormats)}";
+                        errorMessage = $"Invalid date format in column '{header}' at row {rowIndex + 1}.";
+                        errorMessage += $" Raw: '{rawValue}', Trimmed: '{cellValue}'.";
+
+
+
                         isValid = false;
                     }
 
@@ -195,15 +202,15 @@ namespace CSB_DATA_CHECKING.Rules
                         isValid = false;
                     }
                 }
-                else if (expectedType == typeof(string) && IsSensitiveColumn(header) && IsOnlyNumeric(cellValue))
-                {
-                    result.CellErrors.Add(new CsbCellError
-                    {
-                        RowNumber = row.RowNumber,
-                        ColumnName = header,
-                        Message = $"Value '{cellValue}' in column '{header}' appears numeric-only but should contain a proper name"
-                    });
-                }
+                //else if (expectedType == typeof(string) && IsOnlyNumeric(cellValue))
+                //{
+                //    result.CellErrors.Add(new CsbCellError
+                //    {
+                //        RowNumber = row.RowNumber,
+                //        ColumnName = header,
+                //        Message = $"Value '{cellValue}' in column '{header}' appears numeric-only but should contain a proper name"
+                //    });
+                //}
 
                 if (!isValid)
                 {
@@ -217,35 +224,35 @@ namespace CSB_DATA_CHECKING.Rules
             }
         }
 
-        public bool ValidateFileLevel(string fileName, int actualColumnCount, CsbValidationResults result)
-        {
-            // Logger instance
-            var logger = new ExceptionLogger();
+        //public bool ValidateFileLevel(string fileName, int actualColumnCount, CsbValidationResults result)
+        //{
+        //    // Logger instance
+        //    var logger = new ExceptionLogger();
 
-            try
-            {
-                return true;
-            }
-            catch (Exception ex) // Catch if any file-level logic is added later
-            {
-                logger.ExceptionLog("Rule2_ColumnDataTypes -> ValidateFileLevel", ex.ToString());
-                return true;
-            }
-        }
+        //    try
+        //    {
+        //        return true;
+        //    }
+        //    catch (Exception ex) // Catch if any file-level logic is added later
+        //    {
+        //        logger.ExceptionLog("Rule2_ColumnDataTypes -> ValidateFileLevel", ex.ToString());
+        //        return true;
+        //    }
+        //}
 
         private bool IsOnlyNumeric(string value)
         {
             return Regex.IsMatch(value.Trim(), @"^\d+$");
         }
 
-        private bool IsSensitiveColumn(string columnName)
-        {
-            return new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                "Name of the Borrower",
-                "Name of the bank which reported borrower as default"
-            }.Contains(columnName);
-        }
+        //private bool IsSensitiveColumn(string columnName)
+        //{
+        //    return new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        //    {
+        //        "Name of the Borrower",
+        //        "Name of the bank which reported borrower as default"
+        //    }.Contains(columnName);
+        //}
     }
 }
 

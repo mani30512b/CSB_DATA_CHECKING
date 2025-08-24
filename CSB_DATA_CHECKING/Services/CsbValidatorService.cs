@@ -15,10 +15,10 @@ namespace CSB_DATA_CHECKING.Services
         {
             _fileNameRule = new Rule1_FileNameRule();
             _rules = new List<ICsbRule>
-            {
-                _fileNameRule,
-                new Rule2_ColumnDataTypes()
-            };
+                {
+                    _fileNameRule,
+                    new Rule2_ColumnDataTypes()
+                };
         }
 
         public Task<CsbValidationResults> ValidateCsbFileAsync(IFormFile file)

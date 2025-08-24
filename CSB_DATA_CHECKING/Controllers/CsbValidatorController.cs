@@ -53,16 +53,19 @@ namespace CSB_DATA_CHECKING.Controllers
                     downloadUrl = $"{request.Scheme}://{request.Host}/validated/{fileName}";
                 }
 
-                return Ok(new
-                {
-                    result.Success,
-                    result.Message,
-                    result.FileName,
-                    result.PassedRules,
-                    result.FailedRules,
-                    result.CellErrors,
-                    DownloadUrl = downloadUrl
-                });
+                //return Ok(new
+                //{
+                //    result.Success,
+                //    result.Message,
+                //    result.FileName,
+                //    result.PassedRules,
+                //    result.FailedRules,
+                //    result.CellErrors,
+                //    DownloadUrl = downloadUrl
+                //});
+
+                return Ok(ValidationResultConverter.Convert(result, downloadUrl));
+
             }
             catch (Exception ex)
             {

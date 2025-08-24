@@ -31,7 +31,9 @@ namespace CSB_DATA_CHECKING.Rules
             { "CURRENT ACCOUNT_", 4 },
             { "IEDPMS_", 18 }, // .xlsm and .xlsx may need to be handled differently if needed
             { "STOCKSTATEMENT_", 16 },
-            { "TL_", 23 }
+            { "TL_", 23 },
+            { "CURRENTACCOUNT_", 4 },
+            {"New_Testing_File", 24 }
         };
 
 
@@ -128,7 +130,7 @@ namespace CSB_DATA_CHECKING.Rules
                             {
                                 RowNumber = 0,
                                 ColumnName = "Filename",
-                                Message = $"[Rule 1] Invalid date format in filename: {fileName}"
+                                Message = $"[Rule 1] Part-1 Invalid date format in filename: {fileName}"
                             });
                             return false;
                         }
@@ -140,7 +142,7 @@ namespace CSB_DATA_CHECKING.Rules
                             {
                                 RowNumber = 0,
                                 ColumnName = "Header Count",
-                                Message = $"[Rule 1] File '{fileName}' should have {expectedCount} columns but found {actualColumnCount}."
+                                Message = $"[Rule 1] Part-2 File '{fileName}' should have {expectedCount} columns but found {actualColumnCount}."
                             });
                             return false;
                         }
